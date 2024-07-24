@@ -1,0 +1,14 @@
+body{
+    background-color: rgb(17, 16, 16) !important;
+}
+#goToTopBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99;
+    cursor: pointer;
+    background-color: #a92c38;
+    color: #fff;
+    border: none;
+    padding: 10px 20px 10px 20px;
+}
