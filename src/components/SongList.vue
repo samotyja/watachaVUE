@@ -36,6 +36,12 @@ export default {
   setup(props) {
     const filteredSongs = computed(() => {
       if (!props.searchCriteria.query) return props.songs;
+
+      if (props.searchCriteria.type === 'INDEX') {
+        const index = parseInt(props.searchCriteria.query);
+        return [props.songs[index]];
+      }
+
       return props.songs.filter((song) => song[props.searchCriteria.type].toLowerCase().includes(props.searchCriteria.query.toLowerCase()));
     });
 

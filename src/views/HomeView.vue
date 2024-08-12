@@ -1,6 +1,9 @@
 <template>
   <main>
-    <SongSearch @search="updateSearch" />
+    <SongSearch
+      @search="updateSearch"
+      @randomSong="selectRandomSong"
+    />
     <hr class="border border-danger border-3 opacity-75" />
     <SongList
       :songs="songs"
@@ -20,6 +23,7 @@ export default {
     SongSearch,
     SongList,
   },
+
   setup() {
     const songs = ref(songData);
     const searchCriteria = ref({ query: '', type: 'TITLE' });
@@ -28,10 +32,23 @@ export default {
       searchCriteria.value = criteria;
     };
 
+    const randomSong = () => {
+      console.log('random');
+    };
+
+    const selectRandomSong = () => {
+      const randomIndex = Math.floor(Math.random() * songs.value.length);
+      searchCriteria.value = {
+        query: randomIndex.toString(),
+        type: 'INDEX',
+      };
+    };
+
     return {
       songs,
       searchCriteria,
       updateSearch,
+      selectRandomSong,
     };
   },
 };

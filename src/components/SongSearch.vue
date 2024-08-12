@@ -34,6 +34,7 @@
 
     <div class="col-2 col-lg-1 d-grid">
       <button
+        @click="selectRandom"
         id="btnrandom"
         type="button"
         class="btn btn-outline-light"
@@ -44,6 +45,7 @@
 
     <div class="col-2 col-lg-1 d-grid">
       <button
+        @click="resetSearch"
         id="btnrefresh"
         type="button"
         class="btn btn-outline-light"
@@ -78,7 +80,7 @@
 import { ref } from 'vue';
 
 export default {
-  emits: ['search'],
+  emits: ['search', 'randomSong'],
   setup(props, { emit }) {
     const query = ref('');
     const type = ref('TITLE');
@@ -87,10 +89,21 @@ export default {
       emit('search', { query: query.value, type: type.value });
     };
 
+    const selectRandom = () => {
+      emit('randomSong');
+    };
+
+    const resetSearch = () => {
+      emit('search', { query: '' });
+      query.value = '';
+    };
+
     return {
       query,
       type,
       emitSearch,
+      selectRandom,
+      resetSearch,
     };
   },
 };
