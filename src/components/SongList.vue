@@ -12,12 +12,12 @@
           >
             <td style="width: 70%">{{ song.ARTIST }} - {{ song.TITLE }}</td>
             <td style="width: 20%">{{ song.GAME.toUpperCase() }}</td>
-            <!-- <td
+            <td
               v-if="showFileName"
               style="width: 10%"
             >
               {{ song.DLC.toUpperCase() }}
-            </td> -->
+            </td>
           </tr>
         </tbody>
       </table>
@@ -32,6 +32,7 @@ export default {
   props: {
     songs: Array,
     searchCriteria: Object,
+    showFileName: Boolean,
   },
   setup(props) {
     const filteredSongs = computed(() => {

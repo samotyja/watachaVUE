@@ -3,11 +3,13 @@
     <SongSearch
       @search="updateSearch"
       @randomSong="selectRandomSong"
+      @showFileName="toggleFileName"
     />
     <hr class="border border-danger border-3 opacity-75" />
     <SongList
       :songs="songs"
       :searchCriteria="searchCriteria"
+      :showFileName="showFileName"
     />
   </main>
 </template>
@@ -27,13 +29,14 @@ export default {
   setup() {
     const songs = ref(songData);
     const searchCriteria = ref({ query: '', type: 'TITLE' });
+    let showFileName = ref(false);
 
     const updateSearch = (criteria) => {
       searchCriteria.value = criteria;
     };
 
-    const randomSong = () => {
-      console.log('random');
+    const toggleFileName = () => {
+      showFileName.value = !showFileName.value;
     };
 
     const selectRandomSong = () => {
@@ -49,6 +52,8 @@ export default {
       searchCriteria,
       updateSearch,
       selectRandomSong,
+      toggleFileName,
+      showFileName,
     };
   },
 };

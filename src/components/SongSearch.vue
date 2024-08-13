@@ -61,6 +61,7 @@
         aria-label="Basic checkbox toggle button group"
       >
         <input
+          @click="showFileName"
           type="checkbox"
           name="showfile"
           id="btncheck1"
@@ -80,7 +81,7 @@
 import { ref } from 'vue';
 
 export default {
-  emits: ['search', 'randomSong'],
+  emits: ['search', 'randomSong', 'showFileName'],
   setup(props, { emit }) {
     const query = ref('');
     const type = ref('TITLE');
@@ -91,11 +92,16 @@ export default {
 
     const selectRandom = () => {
       emit('randomSong');
+      query.value = '';
     };
 
     const resetSearch = () => {
       emit('search', { query: '' });
       query.value = '';
+    };
+
+    const showFileName = () => {
+      emit('showFileName');
     };
 
     return {
@@ -104,6 +110,7 @@ export default {
       emitSearch,
       selectRandom,
       resetSearch,
+      showFileName,
     };
   },
 };
