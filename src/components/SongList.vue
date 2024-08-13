@@ -18,6 +18,20 @@
             >
               {{ song.DLC.toUpperCase() }}
             </td>
+            <td>
+              <button
+                @click="playSong(song)"
+                class="btn btn-sm btn-primary"
+              >
+                Play
+              </button>
+              <!-- <button
+                @click="addToPlaylist(song)"
+                class="btn btn-sm btn-success"
+              >
+                Add to Playlist
+              </button> -->
+            </td>
           </tr>
         </tbody>
       </table>
@@ -27,6 +41,7 @@
 
 <script>
 import { computed } from 'vue';
+import SpotifyWebApi from 'spotify-web-api-js';
 
 export default {
   props: {
@@ -46,8 +61,33 @@ export default {
       return props.songs.filter((song) => song[props.searchCriteria.type].toLowerCase().includes(props.searchCriteria.query.toLowerCase()));
     });
 
+    const spotifyApi = new SpotifyWebApi();
+
+    const playSong = async (song) => {
+      const accessToken = localStorage.getItem('spotify_access_token');
+      spotifyApi.setAccessToken(accessToken);
+      const searchResults = await spotifyApi.searchTracks(`${song.ARTIST} ${song.TITLE}`);
+      if (searchResults.tracks.items.length > 0) {
+        const trackUri = searchResults.tracks.items[0].uri;
+        await spotifyApi.play({ uris: [trackUri] });
+      }
+    };
+
+    const addToPlaylist = async (song) => {
+      const accessToken = localStorage.getItem('spotify_access_token');
+      spotifyApi.setAccessToken(accessToken);
+      const searchResults = await spotifyApi.searchTracks(`${song.ARTIST} ${song.TITLE}`);
+      if (searchResults.tracks.items.length > 0) {
+        const trackUri = searchResults.tracks.items[0].uri;
+        const playlists = await spotifyApi.getUserPlaylists();
+        // Tutaj możesz dodać logikę wyboru playlisty lub utworzenia nowej
+        await spotifyApi.addTracksToPlaylist(playlists.items[0].id, [trackUri]);
+      }
+    };
     return {
       filteredSongs,
+      playSong,
+      addToPlaylist,
     };
   },
 };

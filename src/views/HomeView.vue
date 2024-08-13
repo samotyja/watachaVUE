@@ -1,5 +1,6 @@
 <template>
   <main>
+    <SpotifyLogin v-if="!isLoggedIn" />
     <SongSearch
       @search="updateSearch"
       @randomSong="selectRandomSong"
@@ -15,21 +16,28 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import SongSearch from '../components/SongSearch.vue';
 import SongList from '../components/SongList.vue';
 import songData from '../assets/data.json';
+import SpotifyLogin from '../components/SpotifyLogin.vue';
 
 export default {
   components: {
     SongSearch,
     SongList,
+    SpotifyLogin,
   },
 
   setup() {
     const songs = ref(songData);
     const searchCriteria = ref({ query: '', type: 'TITLE' });
     let showFileName = ref(false);
+    const isLoggedIn = ref(false);
+
+    onMounted(() => {
+      isLoggedIn.value = !!localStorage.getItem('spotify_access_token');
+    });
 
     const updateSearch = (criteria) => {
       searchCriteria.value = criteria;
@@ -54,6 +62,7 @@ export default {
       selectRandomSong,
       toggleFileName,
       showFileName,
+      isLoggedIn,
     };
   },
 };

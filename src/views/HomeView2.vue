@@ -1,9 +1,9 @@
 <script setup>
-import SongList from '../components/SongList.vue';
+import Spotify from '../components/SpotifyLogin.vue';
 </script>
 
 <template>
   <main>
-    <SongList />
+    <Spotify />
   </main>
 </template>
