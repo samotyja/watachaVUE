@@ -42,6 +42,7 @@
 <script>
 import { computed } from 'vue';
 import SpotifyWebApi from 'spotify-web-api-js';
+import { refreshTokenIfNeeded } from '@/services/refreshTokenIfNeeded';
 
 export default {
   props: {
@@ -64,6 +65,7 @@ export default {
     const spotifyApi = new SpotifyWebApi();
 
     const playSong = async (song) => {
+      await refreshTokenIfNeeded();
       const accessToken = localStorage.getItem('spotify_access_token');
       spotifyApi.setAccessToken(accessToken);
       const searchResults = await spotifyApi.searchTracks(`${song.ARTIST} ${song.TITLE}`);
@@ -80,7 +82,6 @@ export default {
       if (searchResults.tracks.items.length > 0) {
         const trackUri = searchResults.tracks.items[0].uri;
         const playlists = await spotifyApi.getUserPlaylists();
-        // Tutaj możesz dodać logikę wyboru playlisty lub utworzenia nowej
         await spotifyApi.addTracksToPlaylist(playlists.items[0].id, [trackUri]);
       }
     };

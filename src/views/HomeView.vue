@@ -1,6 +1,13 @@
 <template>
   <main>
     <SpotifyLogin v-if="!isLoggedIn" />
+    <button
+      v-if="isLoggedIn"
+      @click="logout"
+      class="btn btn-danger"
+    >
+      Wyloguj
+    </button>
     <SongSearch
       @search="updateSearch"
       @randomSong="selectRandomSong"
@@ -16,11 +23,12 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import SongSearch from '../components/SongSearch.vue';
-import SongList from '../components/SongList.vue';
-import songData from '../assets/data.json';
-import SpotifyLogin from '../components/SpotifyLogin.vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import SongSearch from '@/components/SongSearch.vue';
+import SongList from '@/components/SongList.vue';
+import songData from '@/assets/data.json';
+import SpotifyLogin from '@/components/SpotifyLogin.vue';
 
 export default {
   components: {
@@ -34,6 +42,7 @@ export default {
     const searchCriteria = ref({ query: '', type: 'TITLE' });
     let showFileName = ref(false);
     const isLoggedIn = ref(false);
+    const router = useRouter();
 
     onMounted(() => {
       isLoggedIn.value = !!localStorage.getItem('spotify_access_token');
@@ -55,6 +64,18 @@ export default {
       };
     };
 
+    const logout = async () => {
+      try {
+        localStorage.removeItem('spotify_access_token');
+        localStorage.removeItem('spotify_refresh_token');
+        localStorage.removeItem('spotify_expires_in');
+
+        router.go(0);
+      } catch (error) {
+        console.error('Błąd podczas wylogowywania:', error);
+      }
+    };
+
     return {
       songs,
       searchCriteria,
@@ -63,6 +84,7 @@ export default {
       toggleFileName,
       showFileName,
       isLoggedIn,
+      logout,
     };
   },
 };
