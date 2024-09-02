@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import SpotifyLogin from '@/components/SpotifyLogin.vue';
 import SpotifyCallback from '@/components/SpotifyCallback.vue';
-import BirthDay from '@/views/BirthDay.vue';
+// import Playlist from '@/views/Playlist.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,7 +21,13 @@ const router = createRouter({
       path: '/callback',
       name: 'Callback',
       component: SpotifyCallback
-    }
+    },
+    //   {
+    //   path: '/playlist',
+    //   name: 'Callback',
+    //   component: Playlist
+    // }
+
     // {
     //   path: '/about',
     //   name: 'about',
