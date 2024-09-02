@@ -5,9 +5,10 @@ const refreshTokenIfNeeded = async () => {
   const now = Date.now();
 
   if (expiresAt && now >= parseInt(expiresAt)) {
-    const refresh_token = localStorage.getItem('spotify_refresh_token');
+    const refreshToken = localStorage.getItem('spotify_refresh_token');
     try {
-      const response = await axios.post('http://localhost:3000/refresh-token', { refresh_token });
+      // const response = await axios.post('http://localhost:3000/refresh-token', { refreshToken });
+      const response = await axios.post('https://api.watacha.live/refresh-token', { refreshToken });
       const { access_token, expires_in} = response.data;
       if (response.data.refresh_token) {
         localStorage.setItem('spotify_refresh_token', response.data.refresh_token);
