@@ -21,11 +21,6 @@ const router = createRouter({
       path: '/callback',
       name: 'Callback',
       component: SpotifyCallback
-    },
-      {
-      path: '/watachaAI',
-      name: 'Birthday',
-      component: BirthDay
     }
     // {
     //   path: '/about',

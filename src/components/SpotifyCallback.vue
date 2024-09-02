@@ -15,8 +15,8 @@ export default {
       const code = new URLSearchParams(window.location.search).get('code');
       if (code) {
         try {
-          const response = await axios.post('https://api.watacha.live/get-token', { code });
-          // const response = await axios.post('http://localhost:3000/get-token', { code });
+          // const response = await axios.post('https://api.watacha.live/get-token', { code });
+          const response = await axios.post('http://localhost:3000/get-token', { code });
           localStorage.setItem('spotify_access_token', response.data.access_token);
           localStorage.setItem('spotify_refresh_token', response.data.refresh_token);
           localStorage.setItem('spotify_token_expiration', Date.now() + response.data.expires_in * 1000);
