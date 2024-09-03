@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import HomeView2 from '../views/HomeView2.vue'
+import HomeView from '@/views/HomeView.vue'
+import SpotifyLogin from '@/components/SpotifyLogin.vue';
+import SpotifyCallback from '@/components/SpotifyCallback.vue';
+// import Playlist from '@/views/Playlist.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,10 +13,21 @@ const router = createRouter({
       component: HomeView
     },
     {
-      path: '/test',
-      name: 'subpage',
-      component: HomeView2
+      path: '/login',
+      name: 'Login',
+      component: SpotifyLogin
     },
+    {
+      path: '/callback',
+      name: 'Callback',
+      component: SpotifyCallback
+    },
+    //   {
+    //   path: '/playlist',
+    //   name: 'Callback',
+    //   component: Playlist
+    // }
+
     // {
     //   path: '/about',
     //   name: 'about',

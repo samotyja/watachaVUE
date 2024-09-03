@@ -1,5 +1,13 @@
 <template>
   <main>
+    <SpotifyLogin v-if="!isLoggedIn" />
+    <button
+      v-if="isLoggedIn"
+      @click="logout"
+      class="btn btn-danger"
+    >
+      Wyloguj
+    </button>
     <SongSearch
       @search="updateSearch"
       @randomSong="selectRandomSong"
@@ -10,26 +18,36 @@
       :songs="songs"
       :searchCriteria="searchCriteria"
       :showFileName="showFileName"
+      :isLoggedIn="isLoggedIn"
     />
   </main>
 </template>
 
 <script>
-import { ref } from 'vue';
-import SongSearch from '../components/SongSearch.vue';
-import SongList from '../components/SongList.vue';
-import songData from '../assets/data.json';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import SongSearch from '@/components/SongSearch.vue';
+import SongList from '@/components/SongList.vue';
+import songData from '@/assets/data.json';
+import SpotifyLogin from '@/components/SpotifyLogin.vue';
 
 export default {
   components: {
     SongSearch,
     SongList,
+    SpotifyLogin,
   },
 
   setup() {
     const songs = ref(songData);
-    const searchCriteria = ref({ query: '', type: 'TITLE' });
+    const searchCriteria = ref({});
     let showFileName = ref(false);
+    const isLoggedIn = ref(false);
+    const router = useRouter();
+
+    onMounted(() => {
+      isLoggedIn.value = !!localStorage.getItem('spotify_access_token');
+    });
 
     const updateSearch = (criteria) => {
       searchCriteria.value = criteria;
@@ -47,6 +65,18 @@ export default {
       };
     };
 
+    const logout = async () => {
+      try {
+        localStorage.removeItem('spotify_access_token');
+        localStorage.removeItem('spotify_refresh_token');
+        localStorage.removeItem('spotify_expires_in');
+
+        router.go(0);
+      } catch (error) {
+        console.error('Błąd podczas wylogowywania:', error);
+      }
+    };
+
     return {
       songs,
       searchCriteria,
@@ -54,6 +84,8 @@ export default {
       selectRandomSong,
       toggleFileName,
       showFileName,
+      isLoggedIn,
+      logout,
     };
   },
 };
