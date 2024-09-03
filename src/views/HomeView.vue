@@ -18,6 +18,7 @@
       :songs="songs"
       :searchCriteria="searchCriteria"
       :showFileName="showFileName"
+      :isLoggedIn="isLoggedIn"
     />
   </main>
 </template>
@@ -39,7 +40,7 @@ export default {
 
   setup() {
     const songs = ref(songData);
-    const searchCriteria = ref({ query: '', type: 'TITLE' });
+    const searchCriteria = ref({});
     let showFileName = ref(false);
     const isLoggedIn = ref(false);
     const router = useRouter();

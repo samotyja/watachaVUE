@@ -3,7 +3,7 @@
     <div class="col-12">
       <input
         v-model="query"
-        @input="emitSearch"
+        @input="searchSongs"
         class="form-control"
         placeholder="Search..."
         type="text"
@@ -17,7 +17,7 @@
     <div class="col-4 col-lg-3">
       <select
         v-model="type"
-        @change="emitSearch"
+        @change="searchSongs"
         class="form-select"
         name="searchtype"
         id="type"
@@ -86,7 +86,7 @@ export default {
     const query = ref('');
     const type = ref('TITLE');
 
-    const emitSearch = () => {
+    const searchSongs = () => {
       emit('search', { query: query.value, type: type.value });
     };
 
@@ -107,7 +107,7 @@ export default {
     return {
       query,
       type,
-      emitSearch,
+      searchSongs,
       selectRandom,
       resetSearch,
       showFileName,

@@ -27,20 +27,14 @@
 </template>
 
 <script>
-import { RouterLink, RouterView } from 'vue-router';
-
 export default {
   data() {
     return {
       showTopButton: false,
     };
   },
-  //TODO Optymalizacja, ograniczenie częstotliwości wywoływania eventu scroll.
   mounted() {
     window.addEventListener('scroll', this.handleScroll);
-  },
-  unmounted() {
-    window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
     handleScroll() {

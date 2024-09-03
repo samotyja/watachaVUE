@@ -25,12 +25,6 @@
               >
                 Play
               </button>
-              <!-- <button
-                @click="addToPlaylist(song)"
-                class="btn btn-sm btn-success"
-              >
-                Add to Playlist
-              </button> -->
             </td>
           </tr>
         </tbody>
@@ -49,6 +43,7 @@ export default {
     songs: Array,
     searchCriteria: Object,
     showFileName: Boolean,
+    isLoggedIn: Boolean,
   },
   setup(props) {
     const filteredSongs = computed(() => {
@@ -75,20 +70,9 @@ export default {
       }
     };
 
-    const addToPlaylist = async (song) => {
-      const accessToken = localStorage.getItem('spotify_access_token');
-      spotifyApi.setAccessToken(accessToken);
-      const searchResults = await spotifyApi.searchTracks(`${song.ARTIST} ${song.TITLE}`);
-      if (searchResults.tracks.items.length > 0) {
-        const trackUri = searchResults.tracks.items[0].uri;
-        const playlists = await spotifyApi.getUserPlaylists();
-        await spotifyApi.addTracksToPlaylist(playlists.items[0].id, [trackUri]);
-      }
-    };
     return {
       filteredSongs,
       playSong,
-      addToPlaylist,
     };
   },
 };
