@@ -22,11 +22,11 @@ const router = createRouter({
       name: 'Callback',
       component: SpotifyCallback
     },
-  //   {
-  //   path: '/playlist',
-  //   name: 'Callback',
-  //   component: Playlist
-  // }
+    //   {
+    //   path: '/playlist',
+    //   name: 'Callback',
+    //   component: Playlist
+    // }
 
     // {
     //   path: '/about',
