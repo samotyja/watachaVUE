@@ -33,47 +33,49 @@
   </div>
 </template>
 
-<script>
-import { computed } from 'vue';
+<script setup>
+import { computed, watch } from 'vue';
 import SpotifyWebApi from 'spotify-web-api-js';
 import { refreshTokenIfNeeded } from '@/services/refreshTokenIfNeeded';
 
-export default {
-  props: {
-    songs: Array,
-    searchCriteria: Object,
-    showFileName: Boolean,
-    isLoggedIn: Boolean,
-  },
-  setup(props) {
-    const filteredSongs = computed(() => {
-      if (!props.searchCriteria.query) return props.songs;
+const props = defineProps({
+  songs: Array,
+  searchCriteria: Object,
+  showFileName: Boolean,
+  isLoggedIn: Boolean,
+});
 
-      if (props.searchCriteria.type === 'INDEX') {
-        const index = parseInt(props.searchCriteria.query);
-        return [props.songs[index]];
-      }
+const spotifyApi = new SpotifyWebApi();
 
-      return props.songs.filter((song) => song[props.searchCriteria.type].toLowerCase().includes(props.searchCriteria.query.toLowerCase()));
-    });
+const filteredSongs = computed(() => {
+  if (!props.searchCriteria.query) return props.songs;
 
-    const spotifyApi = new SpotifyWebApi();
+  if (props.searchCriteria.type === 'INDEX') {
+    const index = parseInt(props.searchCriteria.query);
+    return [props.songs[index]];
+  }
 
-    const playSong = async (song) => {
-      await refreshTokenIfNeeded();
+  return props.songs.filter((song) => song[props.searchCriteria.type].toLowerCase().includes(props.searchCriteria.query.toLowerCase()));
+});
+
+const playSong = async (song) => {
+  await refreshTokenIfNeeded();
+  const accessToken = localStorage.getItem('spotify_access_token');
+  spotifyApi.setAccessToken(accessToken);
+  const searchResults = await spotifyApi.searchTracks(`${song.ARTIST} ${song.TITLE}`);
+  if (searchResults.tracks.items.length > 0) {
+    const trackUri = searchResults.tracks.items[0].uri;
+    await spotifyApi.play({ uris: [trackUri] });
+  }
+};
+
+watch(
+  () => props.isLoggedIn,
+  (newValue) => {
+    if (newValue) {
       const accessToken = localStorage.getItem('spotify_access_token');
       spotifyApi.setAccessToken(accessToken);
-      const searchResults = await spotifyApi.searchTracks(`${song.ARTIST} ${song.TITLE}`);
-      if (searchResults.tracks.items.length > 0) {
-        const trackUri = searchResults.tracks.items[0].uri;
-        await spotifyApi.play({ uris: [trackUri] });
-      }
-    };
-
-    return {
-      filteredSongs,
-      playSong,
-    };
-  },
-};
+    }
+  }
+);
 </script>

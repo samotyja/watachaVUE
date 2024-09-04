@@ -3,7 +3,7 @@ import { refreshTokenIfNeeded } from './refreshTokenIfNeeded';
 
 const spotifyApi = new SpotifyWebApi();
 
-const PLAYLIST_ID = '4nBwoT5hFwFq8aRoYSd7Zz';
+const PLAYLIST_ID = '';
 const TRACKS_PER_REQUEST = 50;
 const DELAY_BETWEEN_REQUESTS = 1000;
 

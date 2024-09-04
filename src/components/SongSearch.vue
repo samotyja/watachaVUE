@@ -77,41 +77,30 @@
     </div>
   </div>
 </template>
-<script>
+
+<script setup>
 import { ref } from 'vue';
 
-export default {
-  emits: ['search', 'randomSong', 'showFileName'],
-  setup(props, { emit }) {
-    const query = ref('');
-    const type = ref('TITLE');
+const emit = defineEmits(['search', 'showFile', 'selectRandom', 'randomSong', 'showFileName']);
 
-    const searchSongs = () => {
-      emit('search', { query: query.value, type: type.value });
-    };
+const query = ref('');
+const type = ref('TITLE');
 
-    const selectRandom = () => {
-      emit('randomSong');
-      query.value = '';
-    };
+const searchSongs = () => {
+  emit('search', { query: query.value, type: type.value });
+};
 
-    const resetSearch = () => {
-      emit('search', { query: '' });
-      query.value = '';
-    };
+const resetSearch = () => {
+  query.value = '';
+  type.value = 'TITLE';
+  searchSongs();
+};
 
-    const showFileName = () => {
-      emit('showFileName');
-    };
+const selectRandom = () => {
+  emit('randomSong');
+};
 
-    return {
-      query,
-      type,
-      searchSongs,
-      selectRandom,
-      resetSearch,
-      showFileName,
-    };
-  },
+const showFileName = () => {
+  emit('showFileName');
 };
 </script>

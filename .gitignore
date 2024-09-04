@@ -27,6 +27,8 @@ coverage
 *.sln
 *.sw?
 
+
 *.tsbuildinfo
 
 /src/services/spotifyAuth.js
+TODO.md

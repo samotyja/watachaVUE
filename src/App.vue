@@ -26,26 +26,27 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showTopButton: false,
-    };
-  },
-  mounted() {
-    window.addEventListener('scroll', this.handleScroll);
-  },
-  methods: {
-    handleScroll() {
-      this.showTopButton = window.scrollY > 100;
-    },
-    goToTop() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-    },
-  },
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+
+const showTopButton = ref(false);
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
+
+const handleScroll = () => {
+  showTopButton.value = window.scrollY > 100;
+};
+
+const goToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
 };
 </script>

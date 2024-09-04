@@ -10,33 +10,27 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
 import { createPlaylistFromJson } from '@/services/playlistCreator';
 import songData from '@/assets/data.json';
 
-export default {
-  data() {
-    return {
-      isCreating: false,
-      progress: 0,
-      jsonData: songData,
-    };
-  },
-  methods: {
-    async createPlaylist() {
-      this.isCreating = true;
-      this.progress = 0;
-      try {
-        await createPlaylistFromJson(this.jsonData, (current, total) => {
-          this.progress = Math.round((current / total) * 100);
-        });
-        console.log('Playlist creation completed');
-      } catch (error) {
-        console.error('Error creating playlist', error);
-      } finally {
-        this.isCreating = false;
-      }
-    },
-  },
+const isCreating = ref(false);
+const progress = ref(0);
+const jsonData = songData;
+
+const createPlaylist = async () => {
+  isCreating.value = true;
+  progress.value = 0;
+  try {
+    await createPlaylistFromJson(jsonData, (current, total) => {
+      progress.value = Math.round((current / total) * 100);
+    });
+    console.log('Playlist creation completed');
+  } catch (error) {
+    console.error('Error creating playlist', error);
+  } finally {
+    isCreating.value = false;
+  }
 };
 </script>
