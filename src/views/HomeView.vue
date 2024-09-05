@@ -1,13 +1,16 @@
 <template>
   <main>
-    <SpotifyLogin v-if="!isLoggedIn" />
-    <button
-      v-if="isLoggedIn"
-      @click="logout"
-      class="btn btn-danger"
-    >
-      Wyloguj
-    </button>
+    <SpotifyBar :isLoggedIn="isLoggedIn" />
+    <div class="row text-center">
+      <div class="col">
+        <img
+          src="@/components/icons/title.png"
+          class="img-fluid"
+          alt=""
+        />
+      </div>
+    </div>
+    <br />
     <SongSearch
       @search="updateSearch"
       @randomSong="selectRandomSong"
@@ -29,7 +32,7 @@ import { useRouter } from 'vue-router';
 import SongSearch from '@/components/SongSearch.vue';
 import SongList from '@/components/SongList.vue';
 import songData from '@/assets/data.json';
-import SpotifyLogin from '@/components/SpotifyLogin.vue';
+import SpotifyBar from '@/components/SpotifyBar.vue';
 
 const songs = ref(songData);
 const searchCriteria = ref({});
@@ -55,17 +58,5 @@ const selectRandomSong = () => {
     query: randomIndex.toString(),
     type: 'INDEX',
   };
-};
-
-const logout = async () => {
-  try {
-    localStorage.removeItem('spotify_access_token');
-    localStorage.removeItem('spotify_refresh_token');
-    localStorage.removeItem('spotify_expires_in');
-
-    router.go(0);
-  } catch (error) {
-    console.error('Błąd podczas wylogowywania:', error);
-  }
 };
 </script>

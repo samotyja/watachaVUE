@@ -3,17 +3,6 @@
     class="container"
     @scroll="handleScroll"
   >
-    <br />
-    <div class="row text-center">
-      <div class="col">
-        <img
-          src="./components/icons/title.png"
-          class="img-fluid"
-          alt=""
-        />
-      </div>
-    </div>
-    <br />
     <RouterView> </RouterView>
     <button
       @click="goToTop"
