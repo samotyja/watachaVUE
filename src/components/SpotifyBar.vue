@@ -23,7 +23,7 @@
       v-if="isLoggedIn"
       class="col"
     ></div>
-    <div class="col-4 col-sm-4 col-md-3 col-lg-2 ms-auto d-grid">
+    <div class="col-auto ms-auto d-grid spotify-bar__button">
       <button
         v-if="isLoggedIn"
         @click="logout"
@@ -56,6 +56,10 @@
   opacity: 95%;
 }
 
+.spotify-bar__profile-picture {
+  padding-left: 0px;
+}
+
 .spotify-bar__profile-picture > img {
   border-radius: 50%;
   height: 40px;
@@ -67,6 +71,10 @@
   color: #fff;
   text-align: left;
   font-size: 1.2rem;
+}
+
+.spotify-bar__button {
+  padding-right: 0px;
 }
 </style>
 
