@@ -18,12 +18,12 @@
             >
               {{ song.DLC.toUpperCase() }}
             </td>
-            <td>
+            <td class="align-middle">
               <button
                 @click="playSong(song)"
-                class="btn btn-sm btn-primary"
+                class="btn btn-sm btn-light"
               >
-                Play
+                <PhPlayCircle :size="32" />
               </button>
             </td>
           </tr>
@@ -34,9 +34,10 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 import SpotifyWebApi from 'spotify-web-api-js';
 import { refreshTokenIfNeeded } from '@/services/refreshTokenIfNeeded';
+import { PhPlayCircle } from '@phosphor-icons/vue';
 
 const props = defineProps({
   songs: Array,
@@ -68,14 +69,4 @@ const playSong = async (song) => {
     await spotifyApi.play({ uris: [trackUri] });
   }
 };
-
-watch(
-  () => props.isLoggedIn,
-  (newValue) => {
-    if (newValue) {
-      const accessToken = localStorage.getItem('spotify_access_token');
-      spotifyApi.setAccessToken(accessToken);
-    }
-  }
-);
 </script>
