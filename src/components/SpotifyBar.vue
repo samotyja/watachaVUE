@@ -130,88 +130,88 @@ const loadSpotifySDK = () => {
   });
 };
 
-// const initializePlayer = async () => {
-//   try {
-//     await refreshTokenIfNeeded();
-//     window.onSpotifyWebPlaybackSDKReady = () => {
-//       const token = localStorage.getItem('spotify_access_token');
-//       player.value = new Spotify.Player({
-//         name: 'Watacha.live WEB Player',
-//         getOAuthToken: (cb) => {
-//           cb(token);
-//         },
-//         volume: 0.2,
-//       });
+const initializePlayer = async () => {
+  try {
+    await refreshTokenIfNeeded();
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const token = localStorage.getItem('spotify_access_token');
+      player.value = new Spotify.Player({
+        name: 'Watacha.live WEB Player',
+        getOAuthToken: (cb) => {
+          cb(token);
+        },
+        volume: 0.2,
+      });
 
-//       player.value.addListener('ready', async ({ device_id }) => {
-//         console.log('Ready with Device ID', device_id);
-//         try {
-//           const response = await fetch('https://api.spotify.com/v1/me/player', {
-//             method: 'PUT',
-//             headers: {
-//               Authorization: `Bearer ${localStorage.getItem('spotify_access_token')}`,
-//               'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify({
-//               device_ids: [device_id],
-//             }),
-//           });
+      player.value.addListener('ready', async ({ device_id }) => {
+        console.log('Ready with Device ID', device_id);
+        try {
+          const response = await fetch('https://api.spotify.com/v1/me/player', {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('spotify_access_token')}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              device_ids: [device_id],
+            }),
+          });
 
-//           if (!response.ok) {
-//             const errorData = await response.json();
-//             throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
-//           }
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
+          }
 
-//           console.log('Playback transferred successfully');
-//         } catch (error) {
-//           console.error('Error transferring playback:', error);
-//         }
-//       });
+          console.log('Playback transferred successfully');
+        } catch (error) {
+          console.error('Error transferring playback:', error);
+        }
+      });
 
-//       player.value.addListener('not_ready', ({ device_id }) => {
-//         console.log('Device ID has gone offline', device_id);
-//       });
+      player.value.addListener('not_ready', ({ device_id }) => {
+        console.log('Device ID has gone offline', device_id);
+      });
 
-//       player.value.addListener('initialization_error', ({ message }) => {
-//         console.error(message);
-//       });
+      player.value.addListener('initialization_error', ({ message }) => {
+        console.error(message);
+      });
 
-//       player.value.addListener('authentication_error', ({ message }) => {
-//         console.error(message);
-//       });
+      player.value.addListener('authentication_error', ({ message }) => {
+        console.error(message);
+      });
 
-//       player.value.addListener('account_error', ({ message }) => {
-//         console.error(message);
-//       });
+      player.value.addListener('account_error', ({ message }) => {
+        console.error(message);
+      });
 
-//       player.value.addListener('player_state_changed', ({ position, duration, track_window: { current_track } }) => {
-//         console.log('Currently Playing', current_track);
-//         console.log('Position in Song', position);
-//         console.log('Duration of Song', duration);
+      player.value.addListener('player_state_changed', ({ position, duration, track_window: { current_track } }) => {
+        console.log('Currently Playing', current_track);
+        console.log('Position in Song', position);
+        console.log('Duration of Song', duration);
 
-//         songTitle.value = current_track.artists[0].name + ' - ' + current_track.name;
-//       });
+        songTitle.value = current_track.artists[0].name + ' - ' + current_track.name;
+      });
 
-//       setInterval(async () => {
-//         const state = await player.value.getCurrentState();
-//         if (state) {
-//           const { position, duration } = state;
-//           console.log(position);
-//           updateProgressBar(position, duration);
-//         }
-//       }, 1000);
-//       player.value.connect();
-//     };
-//   } catch (error) {
-//     console.error('Getting ready the SDK error:', error);
-//   }
-// };
+      setInterval(async () => {
+        const state = await player.value.getCurrentState();
+        if (state) {
+          const { position, duration } = state;
+          // console.log(position);
+          updateProgressBar(position, duration);
+        }
+      }, 1000);
+      player.value.connect();
+    };
+  } catch (error) {
+    console.error('Getting ready the SDK error:', error);
+  }
+};
 
 const updateProgressBar = (position, duration) => {
   progress.value = (position / duration) * 100;
   progress.value = Math.floor(progress.value);
   progress.value = progress.value + '%';
-  console.log(progress.value);
+  // console.log(progress.value);
 };
 
 const togglePlay = async () => {
@@ -246,7 +246,7 @@ onMounted(async () => {
 .spotify-bar--logged {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 1020;
   opacity: 95%;
 }
 

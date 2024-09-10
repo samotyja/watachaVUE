@@ -39,6 +39,8 @@ import SpotifyWebApi from 'spotify-web-api-js';
 import { refreshTokenIfNeeded } from '@/services/refreshTokenIfNeeded';
 import { PhPlayCircle } from '@phosphor-icons/vue';
 
+const emit = defineEmits(['alert']);
+
 const props = defineProps({
   songs: Array,
   searchCriteria: Object,
@@ -60,13 +62,17 @@ const filteredSongs = computed(() => {
 });
 
 const playSong = async (song) => {
-  await refreshTokenIfNeeded();
-  const accessToken = localStorage.getItem('spotify_access_token');
-  spotifyApi.setAccessToken(accessToken);
-  const searchResults = await spotifyApi.searchTracks(`${song.ARTIST} ${song.TITLE}`);
-  if (searchResults.tracks.items.length > 0) {
-    const trackUri = searchResults.tracks.items[0].uri;
-    await spotifyApi.play({ uris: [trackUri] });
+  if (props.isLoggedIn) {
+    await refreshTokenIfNeeded();
+    const accessToken = localStorage.getItem('spotify_access_token');
+    spotifyApi.setAccessToken(accessToken);
+    const searchResults = await spotifyApi.searchTracks(`${song.ARTIST} ${song.TITLE}`);
+    if (searchResults.tracks.items.length > 0) {
+      const trackUri = searchResults.tracks.items[0].uri;
+      await spotifyApi.play({ uris: [trackUri] });
+    }
+  } else {
+    emit('alert', { message: 'You must be logged in to play songs', type: 'warning' });
   }
 };
 </script>
