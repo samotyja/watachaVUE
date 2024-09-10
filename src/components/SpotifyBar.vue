@@ -21,7 +21,12 @@
         </div>
 
         <div class="col d-flex justify-content-center align-items-center">
-          <div class="me-3 text-truncate spotify-bar__song-title text-wrap">{{ songTitle }}</div>
+          <div
+            v-if="isLoggedIn"
+            class="me-3 text-truncate spotify-bar__song-title text-wrap"
+          >
+            {{ songTitle }}
+          </div>
           <button
             v-if="isLoggedIn"
             class="btn btn btn-info"
@@ -65,6 +70,8 @@ import router from '@/router';
 import { PhSpotifyLogo, PhPlayPause } from '@phosphor-icons/vue';
 import { onMounted, ref } from 'vue';
 import { refreshTokenIfNeeded } from '@/services/refreshTokenIfNeeded';
+
+const emit = defineEmits(['alert']);
 
 const props = defineProps({
   isLoggedIn: Boolean,
@@ -189,6 +196,9 @@ const initializePlayer = async () => {
         // console.log('Currently Playing', current_track);
         // console.log('Position in Song', position);
         // console.log('Duration of Song', duration);
+        if (!current_track) {
+          emit('alert', { message: 'The connection to the player has been lost, or the device has been changed?', type: 'danger' });
+        }
         isPaused.value = paused;
         updateProgressBar(position, duration);
         if (current_track) {

@@ -1,5 +1,8 @@
 <template>
-  <SpotifyBar :isLoggedIn="isLoggedIn" />
+  <SpotifyBar
+    @alert="handleComponentEvent"
+    :isLoggedIn="isLoggedIn"
+  />
   <div
     class="sticky-alert"
     :class="{ 'sticky-alert--logged': isLoggedIn }"
