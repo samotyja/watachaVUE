@@ -10,7 +10,7 @@
             v-for="(song, index) in filteredSongs"
             :key="index"
           >
-            <td style="width: 70%">{{ song.ARTIST }} - {{ song.TITLE }}</td>
+            <td style="width: 70%">{{ (index, song.ARTIST) }} - {{ song.TITLE }}</td>
             <td style="width: 20%">{{ song.GAME.toUpperCase() }}</td>
             <td
               v-if="showFileName"

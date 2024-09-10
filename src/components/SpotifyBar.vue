@@ -75,7 +75,8 @@ const userName = ref('');
 let script = '';
 const player = ref('');
 const progress = ref(0);
-const songTitle = ref('');
+const songTitle = ref('Not playing now 😭');
+const isPaused = ref(true);
 
 const login = async () => {
   try {
@@ -184,19 +185,24 @@ const initializePlayer = async () => {
         console.error(message);
       });
 
-      player.value.addListener('player_state_changed', ({ position, duration, track_window: { current_track } }) => {
-        console.log('Currently Playing', current_track);
-        console.log('Position in Song', position);
-        console.log('Duration of Song', duration);
-
-        songTitle.value = current_track.artists[0].name + ' - ' + current_track.name;
+      player.value.addListener('player_state_changed', ({ paused, position, duration, track_window: { current_track } }) => {
+        // console.log('Currently Playing', current_track);
+        // console.log('Position in Song', position);
+        // console.log('Duration of Song', duration);
+        isPaused.value = paused;
+        updateProgressBar(position, duration);
+        if (current_track) {
+          songTitle.value = current_track.artists[0].name + ' - ' + current_track.name;
+        } else {
+          songTitle.value = 'Not playing now 😭';
+        }
       });
 
       setInterval(async () => {
-        const state = await player.value.getCurrentState();
-        if (state) {
+        if (!isPaused.value) {
+          const state = await player.value.getCurrentState();
+          // console.log('interval!');
           const { position, duration } = state;
-          // console.log(position);
           updateProgressBar(position, duration);
         }
       }, 1000);
@@ -224,12 +230,12 @@ const togglePlay = async () => {
   }
 };
 
-onMounted(async () => {
+onMounted(() => {
   try {
     loadUserData();
     if (props.isLoggedIn) {
+      loadSpotifySDK();
       initializePlayer();
-      await loadSpotifySDK();
     }
   } catch (error) {
     console.error('Failed to load Spotify SDK durning mounting', error);
