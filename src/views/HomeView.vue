@@ -1,5 +1,6 @@
 <template>
   <SpotifyBar
+    @clearAlert="clearAlert"
     @alert="handleComponentEvent"
     :isLoggedIn="isLoggedIn"
   />
@@ -14,6 +15,7 @@
     >
       {{ alert.message }}
       <button
+        v-if="alert.dismissible"
         @click="clearAlert"
         type="button"
         class="btn-close"
@@ -89,7 +91,7 @@ const selectRandomSong = () => {
 };
 
 const handleComponentEvent = (eventData) => {
-  alert.value = { message: eventData.message, type: eventData.type };
+  alert.value = { message: eventData.message, type: eventData.type, dismissible: eventData.dismissible === undefined ? true : !!eventData.dismissible };
 };
 
 const clearAlert = () => {

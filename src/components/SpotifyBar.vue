@@ -71,7 +71,7 @@ import { PhSpotifyLogo, PhPlayPause } from '@phosphor-icons/vue';
 import { onMounted, ref } from 'vue';
 import { refreshTokenIfNeeded } from '@/services/refreshTokenIfNeeded';
 
-const emit = defineEmits(['alert']);
+const emit = defineEmits(['alert', 'clearAlert']);
 
 const props = defineProps({
   isLoggedIn: Boolean,
@@ -106,6 +106,30 @@ const logout = async () => {
     router.go(0);
   } catch (error) {
     console.error('Logout error', error);
+  }
+};
+
+const changeDevice = async (device_id) => {
+  try {
+    const response = await fetch('https://api.spotify.com/v1/me/player', {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('spotify_access_token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        device_ids: [device_id],
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
+    }
+
+    console.log('Playback transferred successfully');
+  } catch (error) {
+    console.error('Error transferring playback:', error);
   }
 };
 
@@ -153,27 +177,7 @@ const initializePlayer = async () => {
 
       player.value.addListener('ready', async ({ device_id }) => {
         console.log('Ready with Device ID', device_id);
-        try {
-          const response = await fetch('https://api.spotify.com/v1/me/player', {
-            method: 'PUT',
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('spotify_access_token')}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              device_ids: [device_id],
-            }),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
-          }
-
-          console.log('Playback transferred successfully');
-        } catch (error) {
-          console.error('Error transferring playback:', error);
-        }
+        await changeDevice(device_id);
       });
 
       player.value.addListener('not_ready', ({ device_id }) => {
@@ -196,15 +200,14 @@ const initializePlayer = async () => {
         // console.log('Currently Playing', current_track);
         // console.log('Position in Song', position);
         // console.log('Duration of Song', duration);
-        if (!current_track) {
-          emit('alert', { message: 'The connection to the player has been lost, or the device has been changed?', type: 'danger' });
-        }
         isPaused.value = paused;
         updateProgressBar(position, duration);
         if (current_track) {
           songTitle.value = current_track.artists[0].name + ' - ' + current_track.name;
+          emit('clearAlert');
         } else {
           songTitle.value = 'Not playing now 😭';
+          emit('alert', { message: 'The connection to the player has been lost, or the spotify device has been changed?', type: 'danger', dismissible: false });
         }
       });
 
