@@ -5,7 +5,6 @@
   >
     <div class="container-fluid h-100">
       <div class="row align-items-center h-100">
-        <!-- Profil użytkownika -->
         <div
           v-if="isLoggedIn"
           class="col-auto p-0 d-flex align-items-center spotify-bar__profile"
@@ -21,8 +20,8 @@
           </div>
         </div>
 
-        <!-- Przycisk toggle player -->
-        <div class="col d-flex justify-content-center">
+        <div class="col d-flex justify-content-center align-items-center">
+          <div class="me-3 text-truncate spotify-bar__song-title text-wrap">{{ songTitle }}</div>
           <button
             v-if="isLoggedIn"
             class="btn btn btn-info"
@@ -35,27 +34,25 @@
           </button>
         </div>
 
-        <!-- Przycisk logowania/wylogowania -->
         <div class="col-auto p-0 d-flex justify-content-end spotify-bar__button">
           <button
             v-if="isLoggedIn"
             @click="logout"
             class="btn btn btn-danger"
           >
-            <span class="d-none d-md-inline">Wyloguj</span> <PhSpotifyLogo :size="20" />
+            <span class="d-inline">Logout</span> <PhSpotifyLogo :size="20" />
           </button>
           <button
             v-if="!isLoggedIn"
             @click="login"
             class="btn btn btn-success"
           >
-            <span class="d-none d-md-inline">Zaloguj</span> <PhSpotifyLogo :size="20" />
+            <span class="d-inline">Log in</span> <PhSpotifyLogo :size="20" />
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Pasek postępu -->
     <div class="spotify-bar__progress">
       <div class="spotify-bar__progress-bar"></div>
     </div>
@@ -85,6 +82,13 @@
   color: #fff;
   text-align: left;
   font-size: 1.2rem;
+}
+
+.spotify-bar__song-title {
+  color: #fff;
+  font-size: 0.9rem;
+  max-width: 200px;
+  max-height: 40px;
 }
 
 .spotify-bar__button {
@@ -122,6 +126,7 @@ const userName = ref('');
 let script = '';
 const player = ref('');
 const progress = ref(0);
+const songTitle = ref('');
 
 const login = async () => {
   try {
@@ -234,6 +239,8 @@ const initializePlayer = async () => {
         console.log('Currently Playing', current_track);
         console.log('Position in Song', position);
         console.log('Duration of Song', duration);
+
+        songTitle.value = current_track.artists[0].name + ' - ' + current_track.name;
       });
 
       setInterval(async () => {
