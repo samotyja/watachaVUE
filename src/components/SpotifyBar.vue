@@ -207,7 +207,7 @@ const initializePlayer = async () => {
           emit('clearAlert');
         } else {
           songTitle.value = 'Not playing now 😭';
-          emit('alert', { message: 'The connection to the player has been lost, or the spotify device has been changed?', type: 'danger', dismissible: false });
+          emit('alert', { message: 'The connection to the player has been lost, or the spotify device has been changed?', type: 'danger' });
         }
       });
 
