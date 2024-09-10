@@ -4,7 +4,7 @@
     <div class="row text-center">
       <div class="col">
         <img
-          src="@/components/icons/title.png"
+          src="@/assets/images/title.png"
           class="img-fluid"
           alt=""
         />
