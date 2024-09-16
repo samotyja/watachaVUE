@@ -225,7 +225,6 @@ const initializePlayer = async () => {
         console.log(player.value);
       }, 1000);
       player.value.connect();
-      MediaKeySession.close();
     };
   } catch (error) {
     console.error('Getting ready the SDK error:', error);
