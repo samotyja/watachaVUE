@@ -28,14 +28,27 @@
             {{ songTitle }}
           </div>
           <button
-            v-if="isLoggedIn"
+            v-if="isLoggedIn && isConnected"
             class="btn btn btn-info"
             @click="togglePlay"
           >
-            <PhPlayPause
+            <PhPlay
+              v-if="isPaused == true"
               :size="20"
               color="#f7f7f7"
             />
+            <PhPause
+              v-else-if="isPaused == false"
+              :size="20"
+              color="#f7f7f7"
+            />
+          </button>
+          <button
+            v-else
+            class="btn btn btn-success"
+            @click="reconnect"
+          >
+            <PhPlugs :size="20" />
           </button>
         </div>
 
@@ -67,7 +80,7 @@
 <script setup>
 import axios from 'axios';
 import router from '@/router';
-import { PhSpotifyLogo, PhPlayPause } from '@phosphor-icons/vue';
+import { PhSpotifyLogo, PhPlay, PhPause, PhPlugs } from '@phosphor-icons/vue';
 import { onMounted, ref } from 'vue';
 import { refreshTokenIfNeeded } from '@/services/refreshTokenIfNeeded';
 
@@ -77,13 +90,27 @@ const props = defineProps({
   isLoggedIn: Boolean,
 });
 
-const userAvatar = ref('');
-const userName = ref('');
-let script = '';
-const player = ref('');
+let script;
+let userAvatar;
+let userName;
+let deviceId;
+const isConnected = ref();
+const player = ref();
 const progress = ref(0);
 const songTitle = ref('Not playing now 😭');
 const isPaused = ref(true);
+
+onMounted(() => {
+  try {
+    loadUserData();
+    if (props.isLoggedIn) {
+      loadSpotifySDK();
+      initializePlayer();
+    }
+  } catch (error) {
+    console.error('Failed to load Spotify SDK durning mounting', error);
+  }
+});
 
 const login = async () => {
   try {
@@ -95,7 +122,7 @@ const login = async () => {
   }
 };
 
-const logout = async () => {
+const logout = () => {
   try {
     localStorage.removeItem('spotify_access_token');
     localStorage.removeItem('spotify_refresh_token');
@@ -105,38 +132,14 @@ const logout = async () => {
     localStorage.removeItem('spotify_avatar');
     router.go(0);
   } catch (error) {
-    console.error('Logout error', error);
-  }
-};
-
-const changeDevice = async (device_id) => {
-  try {
-    const response = await fetch('https://api.spotify.com/v1/me/player', {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('spotify_access_token')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        device_ids: [device_id],
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
-    }
-
-    console.log('Playback transferred successfully');
-  } catch (error) {
-    console.error('Error transferring playback:', error);
+    console.error('Logout error:', error);
   }
 };
 
 const loadUserData = () => {
   if (props.isLoggedIn) {
-    userAvatar.value = localStorage.getItem('spotify_avatar');
-    userName.value = localStorage.getItem('spotify_user');
+    userAvatar = localStorage.getItem('spotify_avatar');
+    userName = localStorage.getItem('spotify_user');
   }
 };
 
@@ -167,6 +170,7 @@ const initializePlayer = async () => {
     await refreshTokenIfNeeded();
     window.onSpotifyWebPlaybackSDKReady = () => {
       const token = localStorage.getItem('spotify_access_token');
+      songTitle.value = 'Connecting to player...';
       player.value = new Spotify.Player({
         name: 'Watacha.live WEB Player',
         getOAuthToken: (cb) => {
@@ -177,7 +181,9 @@ const initializePlayer = async () => {
 
       player.value.addListener('ready', async ({ device_id }) => {
         console.log('Ready with Device ID', device_id);
-        await changeDevice(device_id);
+        deviceId = device_id;
+        isConnected.value = true;
+        await changeDevice(deviceId);
       });
 
       player.value.addListener('not_ready', ({ device_id }) => {
@@ -197,9 +203,6 @@ const initializePlayer = async () => {
       });
 
       player.value.addListener('player_state_changed', ({ paused, position, duration, track_window: { current_track } }) => {
-        // console.log('Currently Playing', current_track);
-        // console.log('Position in Song', position);
-        // console.log('Duration of Song', duration);
         isPaused.value = paused;
         updateProgressBar(position, duration);
         if (current_track) {
@@ -208,21 +211,42 @@ const initializePlayer = async () => {
         } else {
           songTitle.value = 'Not playing now 😭';
           emit('alert', { message: 'The connection to the player has been lost, or the spotify device has been changed?', type: 'danger' });
+          player.value.disconnect();
+          isConnected.value = false;
         }
       });
 
       setInterval(async () => {
         if (!isPaused.value) {
           const state = await player.value.getCurrentState();
-          // console.log('interval!');
           const { position, duration } = state;
           updateProgressBar(position, duration);
         }
+        console.log(player.value);
       }, 1000);
       player.value.connect();
+      MediaKeySession.close();
     };
   } catch (error) {
     console.error('Getting ready the SDK error:', error);
+  }
+};
+
+const changeDevice = async (deviceId) => {
+  try {
+    const response = await fetch('https://api.spotify.com/v1/me/player', {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('spotify_access_token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        device_ids: [deviceId],
+      }),
+    });
+    console.log('Playback transferred successfully');
+  } catch (error) {
+    console.error('Error transferring playback:', error);
   }
 };
 
@@ -230,30 +254,27 @@ const updateProgressBar = (position, duration) => {
   progress.value = (position / duration) * 100;
   progress.value = Math.floor(progress.value);
   progress.value = progress.value + '%';
-  // console.log(progress.value);
 };
 
 const togglePlay = async () => {
   try {
     await player.value.togglePlay().then(() => {
-      console.log('Toggled playback!');
+      // console.log('Toggled playback!');
     });
   } catch (error) {
-    console.log('Toggle error', error);
+    console.error('Player toggle error:', error);
   }
 };
 
-onMounted(() => {
+const reconnect = async () => {
   try {
-    loadUserData();
-    if (props.isLoggedIn) {
-      loadSpotifySDK();
-      initializePlayer();
-    }
+    songTitle.value = 'Connecting to player...';
+    player.value.connect();
   } catch (error) {
-    console.error('Failed to load Spotify SDK durning mounting', error);
+    console.error('Reconnection error:', error);
+    songTitle.value = 'Reconnection error';
   }
-});
+};
 </script>
 
 <style scoped>
