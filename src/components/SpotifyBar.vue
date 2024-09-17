@@ -44,7 +44,7 @@
             />
           </button>
           <button
-            v-else
+            v-else-if="isLoggedIn && !isConnected"
             class="btn btn btn-success"
             @click="reconnect"
           >
@@ -70,9 +70,20 @@
         </div>
       </div>
     </div>
-
-    <div class="spotify-bar__progress">
+    <div
+      class="spotify-bar__progress"
+      v-if="isLoggedIn"
+    >
       <div class="spotify-bar__progress-bar"></div>
+      <input
+        type="range"
+        class="form-range"
+        min="0"
+        max="100"
+        :value="currentProgress"
+        @input="handleProgressChange"
+        v-if="!isDisabledProgress"
+      />
     </div>
   </div>
 </template>
@@ -96,7 +107,10 @@ let userName;
 let deviceId;
 const isConnected = ref();
 const player = ref();
-const progress = ref(0);
+const currentProgress = ref(0);
+const progressPercentage = ref(0);
+const currentDuration = ref(0);
+const isDisabledProgress = ref(true);
 const songTitle = ref('Not playing now 😭');
 const isPaused = ref(true);
 
@@ -114,8 +128,8 @@ onMounted(() => {
 
 const login = async () => {
   try {
-    // const response = await axios.get('https://api.watacha.live/login');
-    const response = await axios.get('http://localhost:3000/login');
+    const response = await axios.get('https://api.watacha.live/login');
+    // const response = await axios.get('http://localhost:3000/login');
     window.location.href = response.data.loginUrl;
   } catch (error) {
     console.error('Error getting login URL:', error);
@@ -196,6 +210,7 @@ const initializePlayer = async () => {
 
       player.value.addListener('authentication_error', ({ message }) => {
         console.error(message);
+        emit('alert', { message: 'Authentication error. Please try to refresh the page.', type: 'danger', dismissible: false });
       });
 
       player.value.addListener('account_error', ({ message }) => {
@@ -207,12 +222,14 @@ const initializePlayer = async () => {
         updateProgressBar(position, duration);
         if (current_track) {
           songTitle.value = current_track.artists[0].name + ' - ' + current_track.name;
+          isDisabledProgress.value = false;
           emit('clearAlert');
         } else {
           songTitle.value = 'Not playing now 😭';
           emit('alert', { message: 'The connection to the player has been lost, or the spotify device has been changed?', type: 'danger' });
           player.value.disconnect();
           isConnected.value = false;
+          isDisabledProgress.value = true;
         }
       });
 
@@ -222,7 +239,6 @@ const initializePlayer = async () => {
           const { position, duration } = state;
           updateProgressBar(position, duration);
         }
-        console.log(player.value);
       }, 1000);
       player.value.connect();
     };
@@ -250,9 +266,10 @@ const changeDevice = async (deviceId) => {
 };
 
 const updateProgressBar = (position, duration) => {
-  progress.value = (position / duration) * 100;
-  progress.value = Math.floor(progress.value);
-  progress.value = progress.value + '%';
+  currentProgress.value = (position / duration) * 100;
+  currentProgress.value = Math.floor(currentProgress.value);
+  currentDuration.value = duration;
+  progressPercentage.value = currentProgress.value + '%';
 };
 
 const togglePlay = async () => {
@@ -263,6 +280,12 @@ const togglePlay = async () => {
   } catch (error) {
     console.error('Player toggle error:', error);
   }
+};
+
+const handleProgressChange = async (event) => {
+  const newPosition = (event.target.value / 100) * currentDuration.value;
+  await player.value.seek(newPosition);
+  console.log(event.target.value);
 };
 
 const reconnect = async () => {
@@ -313,16 +336,88 @@ const reconnect = async () => {
 }
 
 .spotify-bar__progress {
-  margin: 0 0 0 0;
-  padding: 0 0 0 0;
+  position: relative;
+  height: 15px;
   background-color: grey;
+  cursor: pointer;
 }
 
 .spotify-bar__progress-bar {
-  height: 10px;
+  height: 100%;
   background-color: #dc3545;
-  width: v-bind(progress);
-  margin: 0 0 0 0;
-  padding: 0 0 0 0;
+  width: v-bind(progressPercentage);
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
 }
+
+.form-range {
+  position: absolute;
+  top: -3px;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  opacity: 1;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: 2px solid #dc3545;
+  margin-top: -6px;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: 2px solid #dc3545;
+}
+
+.form-range::-ms-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: 2px solid #dc3545;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 10px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.form-range::-moz-range-track {
+  width: 100%;
+  height: 10px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.form-range::-ms-track {
+  width: 100%;
+  height: 10px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+/* Ukryj domyślny wygląd suwaka */
 </style>
